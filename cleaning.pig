@@ -23,9 +23,12 @@ movies = foreach movies generate
 
 ratings_plus = join ratings by movieID LEFT OUTER, movies by movieID;
 
--- dump ratings_plus;
+-- save the new table to a directory called cleaned_data
 
--- save the ratings_plus table to a directory called cleaned_data
-
--- fs -rm -rf output/movies -- remove old dir
-store ratings_plus into 'cleaned_data/' using PigStorage('\t', '-schema');
+fs -rm -r -f cleaned_data/movies -- remove old dir
+store ratings_plus into 'cleaned_data/movies' using PigStorage('\t', '-schema'); -- Save parts, headers & other gunk
+fs -rm -f cleaned_data/movies/.pig_schema -- Remove schema file
+fs -rm -f cleaned_data/movies/_SUCCESS -- Remove success file
+fs -getmerge cleaned_data/movies cleaned_data/movies.csv; -- Merge into single file
+fs -rm -r -f cleaned_data/movies -- remove gunk
+fs -rm -f cleaned_data/.movies.csv.crc; -- Remove gunk
